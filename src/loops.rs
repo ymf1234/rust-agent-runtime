@@ -1,22 +1,6 @@
 use crate::action::Action;
 use crate::state::AgentState;
-use crate::tools::{ToolManager};
-
-pub fn think(state: &AgentState) -> Action {
-    println!("Goal:{}", state.goal);
-
-    if state.step == 0 {
-        Action::ToolCall {
-            name: "filesystem".to_string(),
-            args: serde_json::json!({"path": "src"}),
-        }
-    } else if state.step >= 1 {
-        Action::Finish
-    } else {
-        Action::Continue
-    }
-}
-
+use crate::tools::ToolManager;
 
 pub fn execute_action(action: Action, state: &mut AgentState, tool_manager: &ToolManager) {
     match action {

@@ -5,7 +5,7 @@ mod agent;
 mod loops;
 mod state;
 mod tools;
-pub mod llm;
+mod llm;
 fn main() {
     println!("Agent Runtime Started");
 

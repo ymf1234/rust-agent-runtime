@@ -1,4 +1,5 @@
-use crate::loops::{execute_action, think};
+use crate::llm::{Llm, MockLlm};
+use crate::loops::execute_action;
 use crate::state::AgentState;
 use crate::tools::{FileSystemTool, ToolManager};
 
@@ -24,8 +25,10 @@ impl Agent {
 
         println!();
 
+        let llm: Box<dyn Llm> = Box::new(MockLlm);
+
         while !state.finished {
-            let action = think(&state);
+            let action = llm.think(&state);
 
             execute_action(action, &mut state, &tool_manager);
         }
