@@ -7,6 +7,7 @@ pub struct FileSystemTool;
 
 impl Tool for FileSystemTool {
     fn definition(&self) -> ToolDefinition {
+        // 这份定义相当于给 LLM 的工具说明书；parameters 使用 JSON Schema。
         ToolDefinition {
             name: "filesystem".to_string(),
             description: "读取目录并统计 Rust 文件".to_string(),
@@ -24,8 +25,10 @@ impl Tool for FileSystemTool {
     }
 
     fn execute(&self, args: serde_json::Value) -> String {
+        // 如果参数缺少 path，默认读取当前目录，避免示例程序直接崩溃。
         let path = args["path"].as_str().unwrap_or(".");
 
+        // read_dir 失败时，把错误转成字符串返回，而不是让 Agent 进程退出。
         let entries = match fs::read_dir(path) {
             Ok(entries) => entries,
             Err(error) => {
@@ -36,6 +39,7 @@ impl Tool for FileSystemTool {
         let mut rust_file_count = 0;
 
         for entry in entries {
+            // 单个目录项读取失败时跳过它，继续统计其他目录项。
             let entry = match entry {
                 Ok(entry) => entry,
                 Err(_) => continue,
@@ -43,6 +47,7 @@ impl Tool for FileSystemTool {
 
             let path = entry.path();
 
+            // 当前只统计目录的直接子项，不递归进入子目录。
             if path.is_file() {
                 if let Some(extension) = path.extension() {
                     if extension == "rs" {
@@ -52,6 +57,7 @@ impl Tool for FileSystemTool {
             }
         }
 
+        // 返回给 execute_action 的文本会被打印为 Observation。
         format!("目录 {} 中有 {} 个 Rust 文件", path, rust_file_count)
     }
 }

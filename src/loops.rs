@@ -7,6 +7,7 @@ pub fn execute_action(action: Action, state: &mut AgentState, tool_manager: &Too
         Action::Continue => {
             println!("Action: Continue");
 
+            // Continue 本身没有工具结果，但仍然算完成了一轮处理。
             state.step += 1;
         }
 
@@ -17,6 +18,8 @@ pub fn execute_action(action: Action, state: &mut AgentState, tool_manager: &Too
 
             println!("Args: {}", args);
 
+            // ToolManager 负责按工具名称查找并执行工具。
+            // 工具返回的字符串就是 Agent 看到的 Observation。
             let result = tool_manager.execute(name, args);
 
             println!("Observation: {}", result);
@@ -27,6 +30,7 @@ pub fn execute_action(action: Action, state: &mut AgentState, tool_manager: &Too
         Action::Finish => {
             println!("Action: Finish");
 
+            // 下一次检查 while 条件时退出 Agent 主循环。
             state.finished = true;
         }
     }
