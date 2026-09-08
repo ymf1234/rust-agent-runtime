@@ -1,7 +1,9 @@
-use crate::llm::{Llm};
+use crate::decision::tool_call_to_action;
+use crate::llm::Llm;
 use crate::loops::execute_action;
+use crate::parser::parse_tool_call;
 use crate::state::AgentState;
-use crate::tools::{ToolManager};
+use crate::tools::ToolManager;
 
 pub struct Agent {
     llm: Box<dyn Llm>,
@@ -21,12 +23,6 @@ impl Agent {
             finished: false,
         };
 
-        // // ToolManager 是运行时的工具注册表。
-        // let mut tool_manager = ToolManager::new();
-
-        // // 新工具需要先注册，模型返回对应名称后运行时才能找到它。
-        // tool_manager.register(Box::new(FileSystemTool));
-
         println!("Available Tools:");
 
         for tool in self.tool_manager.list_tools() {
@@ -40,15 +36,19 @@ impl Agent {
 
         // 这就是最小 ReAct 循环：思考（think）→ 执行动作 → 更新状态 → 再思考。
         while !state.finished {
-            let action = self.llm.think(&state);
+            let response = self.llm.think(&state);
+
+            println!("LLM Response: {}", response.trim());
+
+            let tool_call = parse_tool_call(&response).expect("解析 ToolCall 失败");
+
+            // 将模型协议中的 "finish" 转换为结束动作，而不是当成工具名执行。
+            let action = tool_call_to_action(tool_call);
 
             execute_action(action, &mut state, &self.tool_manager);
         }
 
         // 示例程序最后打印状态，方便观察 goal、step 和 finished 的变化。
-        println!(
-            "Final State: {:?}", 
-            state
-        );
+        println!("Final State: {:?}", state);
     }
 }

@@ -1,5 +1,6 @@
 pub mod action;
 pub mod agent;
+pub mod decision;
 pub mod llm;
 pub mod loops;
 pub mod parser;
