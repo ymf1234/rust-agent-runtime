@@ -1,16 +1,20 @@
-use crate::agent::Agent;
-
-// 二进制程序的模块入口。这里声明的模块才会参与编译；src/mod.rs 不会被使用。
-mod action;
-mod agent;
-mod loops;
-mod state;
-mod tools;
-mod llm;
+use rust_agent_runtime::{
+    agent::Agent,
+    llm::MockLlm,
+    tools::{FileSystemTool, ToolManager},
+};
 
 fn main() {
     println!("Agent Runtime Started");
 
+    let mut tool_manager = ToolManager::new();
+
+    tool_manager.register(Box::new(FileSystemTool));
+
+    let llm = Box::new(MockLlm);
+
     // 真实项目中 goal 可以来自命令行或用户输入；当前先用固定目标演示完整流程。
-    Agent::run("统计 src 目录中的 Rust 文件".to_string());
+    let agent = Agent::new(llm, tool_manager);
+
+    agent.run("统计 src 目录中的 Rust 文件".to_string());
 }
