@@ -1,5 +1,6 @@
 use std::fs;
 
+use crate::tool_result::ToolResult;
 use crate::tools::Tool;
 use crate::tools::schema::ToolDefinition;
 
@@ -24,7 +25,7 @@ impl Tool for FileSystemTool {
         }
     }
 
-    fn execute(&self, args: serde_json::Value) -> String {
+    fn execute(&self, args: serde_json::Value) -> ToolResult {
         // 如果参数缺少 path，默认读取当前目录，避免示例程序直接崩溃。
         let path = args["path"].as_str().unwrap_or(".");
 
@@ -32,7 +33,7 @@ impl Tool for FileSystemTool {
         let entries = match fs::read_dir(path) {
             Ok(entries) => entries,
             Err(error) => {
-                return format!("读取目录失败:{}", error);
+                return ToolResult::Error(format!("读取目录失败:{}", error));
             }
         };
 
@@ -58,6 +59,9 @@ impl Tool for FileSystemTool {
         }
 
         // 返回给 execute_action 的文本会被打印为 Observation。
-        format!("目录 {} 中有 {} 个 Rust 文件", path, rust_file_count)
+        ToolResult::Success(format!(
+            "目录 {} 中有 {} 个 Rust 文件",
+            path, rust_file_count
+        ))
     }
 }

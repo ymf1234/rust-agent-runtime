@@ -7,4 +7,6 @@ pub struct AgentState {
 
     // 变为 true 后，Agent::run 中的 while 循环结束。
     pub finished: bool,
+
+    pub observation: Option<String>,
 }

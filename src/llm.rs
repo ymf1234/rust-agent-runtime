@@ -11,24 +11,40 @@ pub struct MockLlm;
 
 impl Llm for MockLlm {
     fn think(&self, state: &AgentState) -> String {
-        if state.step == 0 {
-            r#"
-            {
-                "name": "filesystem",
-                "arguments": {
-                    "path": "src"
+        match &state.observation {
+            None => r#"
+                {
+                    "name": "filesystem",
+                    "arguments": {
+                        "path": "not-exist"
+                    }
+                }
+                "#
+            .to_string(),
+
+            Some(observation) => {
+                println!("LLM sees observation: {}", observation);
+
+                if observation.starts_with("Tool Error:") {
+                    r#"
+                    {
+                        "name": "filesystem",
+                        "arguments": {
+                            "path": "src"
+                        }
+                    }
+                    "#
+                    .to_string()
+                } else {
+                    r#"
+                    {
+                        "name": "finish",
+                        "arguments": {}
+                    }
+                    "#
+                    .to_string()
                 }
             }
-            "#
-            .to_string()
-        } else {
-            r#"
-            {
-                "name": "finish",
-                "arguments": {}
-            }
-            "#
-            .to_string()
         }
     }
 }

@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum  ToolResult {
+pub enum ToolResult {
     Success(String),
     Error(String),
 }

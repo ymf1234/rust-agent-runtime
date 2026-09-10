@@ -1,3 +1,4 @@
+use crate::tool_result::ToolResult;
 use crate::tools::schema::ToolDefinition;
 use crate::tools::tool::Tool;
 
@@ -17,7 +18,12 @@ impl ToolManager {
         self.tools.push(tool);
     }
 
-    pub fn execute(&self, name: String, args: serde_json::Value) -> String {
+    pub fn list_tools(&self) -> Vec<ToolDefinition> {
+        // 启动时用于展示当前 Runtime 注册了哪些工具。
+        self.tools.iter().map(|tool| tool.definition()).collect()
+    }
+
+    pub fn execute(&self, name: String, args: serde_json::Value) -> ToolResult {
         // 当前实现按名称线性查找；找不到时也返回字符串，作为 Observation 交给模型处理。
         for tool in &self.tools {
             if tool.definition().name == name {
@@ -25,11 +31,6 @@ impl ToolManager {
             }
         }
 
-        format!("Tool not found: {}", name)
-    }
-
-    pub fn list_tools(&self) -> Vec<ToolDefinition> {
-        // 启动时用于展示当前 Runtime 注册了哪些工具。
-        self.tools.iter().map(|tool| tool.definition()).collect()
+        ToolResult::Error(format!("Tool not found: {}", name))
     }
 }

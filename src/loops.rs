@@ -1,5 +1,6 @@
 use crate::action::Action;
 use crate::state::AgentState;
+use crate::tool_result::ToolResult;
 use crate::tools::ToolManager;
 
 pub fn execute_action(action: Action, state: &mut AgentState, tool_manager: &ToolManager) {
@@ -22,7 +23,16 @@ pub fn execute_action(action: Action, state: &mut AgentState, tool_manager: &Too
             // 工具返回的字符串就是 Agent 看到的 Observation。
             let result = tool_manager.execute(name, args);
 
-            println!("Observation: {}", result);
+            match result {
+                ToolResult::Success(output) => {
+                    println!("Observation: {}", output);
+                    state.observation = Some(output);
+                }
+                ToolResult::Error(error) => {
+                    println!("Tool Error: {}", error);
+                    state.observation = Some(format!("Tool Error: {}", error));
+                }
+            }
 
             state.step += 1;
         }

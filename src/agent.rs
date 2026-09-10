@@ -21,6 +21,7 @@ impl Agent {
             goal: goal,
             step: 0,
             finished: false,
+            observation: None,
         };
 
         println!("Available Tools:");

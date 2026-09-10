@@ -6,5 +6,5 @@ pub mod loops;
 pub mod parser;
 pub mod state;
 pub mod tool_call;
-pub mod tools;
 pub mod tool_result;
+pub mod tools;
