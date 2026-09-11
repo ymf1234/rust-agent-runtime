@@ -1,3 +1,5 @@
+use crate::message::Message;
+
 #[derive(Debug)]
 pub struct AgentState {
     // 用户希望 Agent 完成的事情。
@@ -9,4 +11,6 @@ pub struct AgentState {
     pub finished: bool,
 
     pub observation: Option<String>,
+
+    pub messages: Vec<Message>,
 }

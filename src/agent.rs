@@ -1,6 +1,7 @@
 use crate::decision::tool_call_to_action;
 use crate::llm::Llm;
 use crate::loops::execute_action;
+use crate::message::Message;
 use crate::parser::parse_tool_call;
 use crate::state::AgentState;
 use crate::tools::ToolManager;
@@ -22,7 +23,10 @@ impl Agent {
             step: 0,
             finished: false,
             observation: None,
+            messages: Vec::new()
         };
+
+        state.messages.push(Message::User(state.goal.clone()));
 
         println!("Available Tools:");
 
